@@ -52,7 +52,7 @@ import queue
 import words
 from skills import *
 import voice
-
+import asyncio
 
 q = queue.Queue()
 
@@ -100,7 +100,6 @@ def recognize(data, vectorizer, clf):
 
     #запуск функции из skills
     exec(func_name + '()')
-
 
 def main():
     '''
