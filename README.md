@@ -1,6 +1,6 @@
 # Offline-Voice-Assistant-with-Machine-Learning-on-python
 
-Голосовой ассистент "Крендель"
+Голосовой ассистент "Пятница"
 
 from YT channel PythonHubStudio
 
@@ -9,6 +9,7 @@ python 3.8 и выше.
 Распаковать в проект языковую модель vosk
 
 Требуется:
+pip install silero
 
 pip install vosk
 
