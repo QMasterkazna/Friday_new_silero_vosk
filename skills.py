@@ -5,6 +5,8 @@ import subprocess
 import os
 import pygame
 import re
+
+import youtube_dl
 import yt_dlp
 import winshell as winshell
 import voice
@@ -17,6 +19,11 @@ import pyglet
 import asyncio
 from datetime import datetime
 import math
+from pytube import YouTube
+from moviepy.editor import *
+import keyboard
+
+
 def youtube():
     '''Открывает браузер заданнный по уполчанию в системе с url указанным здесь'''
 
@@ -30,17 +37,11 @@ def browser():
 # Установка pygame.mixer
 pygame.mixer.init()
 
-def stop_music():
-    print('остоновила')
-    pygame.mixer_music.stop()
-    print('готово')
 
 def music():
-    # Получение текущей директории
-    dir_path = os.getcwd()
 
     # Перемещение в директорию с музыкой
-    os.chdir(dir_path + "/music")
+    os.chdir('E:\PyCharm\Offline-Voice-Assistant-with-Machine-Learning-on-python\music')
 
     # Получение списка всех файлов в директории
     music_files = os.listdir()
@@ -55,7 +56,15 @@ def music():
                 pygame.mixer_music.set_volume(0.3)
                 pygame.mixer.music.play()
                 while pygame.mixer_music.get_busy():
-                    return
+                    if keyboard.is_pressed('pause'):
+                        print('pressed pause')
+                        return
+                    pass
+
+
+def stop_music():
+    pygame.mixer_music.stop()
+    print('Stoped')
 
 
 def time():
@@ -63,21 +72,24 @@ def time():
     print(time.hour, time.minute, time.second)
     voice.speaker(f'{str(time.hour)}часов, {str(time.minute)}минут и {str(time.second)} секунды')
 
+
 week_day = {
-    'Monday':'понедельник',
-    'Tuesday':'вторник',
-    'Wednesday':'среда',
-    'Thursday':'четверг',
-    'Friday':'пятница',
-    'Saturday':'суббота',
-    'Sunday':'воскресенье',
+    'Monday': 'понедельник',
+    'Tuesday': 'вторник',
+    'Wednesday': 'среда',
+    'Thursday': 'четверг',
+    'Friday': 'пятница',
+    'Saturday': 'суббота',
+    'Sunday': 'воскресенье',
 }
+
+
 def time_day():
     time = datetime.now()
     day = datetime.today().strftime("%A")
     print(day)
     print(time.day)
-    voice.speaker(f"Дураста! сегодня же {str(time.day)} число, а день недели {str(week_day[day])}")
+    voice.speaker(f"сегодня {str(time.day)} число, день недели {str(week_day[day])}")
 
 
 def time_month():
@@ -91,12 +103,13 @@ def time_year():
     print(time.year)
     voice.speaker(f'ну вы конечно и выдали, сейчас же идёт {str(time.year)}')
 
+
 numbers_for_translate = {
-    1:'один',
-    2:'два',
-    3:'три',
-    4:'четыре',
-    5:'пять',
+    1: 'один',
+    2: 'два',
+    3: 'три',
+    4: 'четыре',
+    5: 'пять',
     6: 'шест',
     7: 'семь',
     8: 'восемь',
@@ -107,7 +120,54 @@ numbers_for_translate = {
     13: 'тренадцать',
     14: 'четырнадцать',
     15: 'пятнадцать',
+    16: 'шестнадцать',
+    17: 'семьнадцать',
+    18: 'восемьнадцать',
+    19: 'девятьнадцать',
+    20: 'двадцать',
+    21: 'двадцать один',
+    22: 'двадцать два',
+    23: 'двадцать три',
+    24: 'двадцать четыре',
+    25: 'двадцать пять',
+    26: 'двадцать шесть',
+    27: 'двадцать семь',
+    28: 'двадцать восемь',
+    29: 'двадцать девять',
+    30: 'тридцать',
+    -1: 'минус один',
+    -2: 'минус два',
+    -3: 'минус три',
+    -4: 'минус четыре',
+    -5: 'минус пять',
+    -6: 'минус шест',
+    -7: 'минус семь',
+    -8: 'минус восемь',
+    -9: 'минус девять',
+    -10: 'минус десять',
+    -11: 'минус одинадцать',
+    -12: 'минус двенадцать',
+    -13: 'минус тренадцать',
+    -14: 'минус четырнадцать',
+    -15: 'минус пятнадцать',
+    -16: 'минус шестнадцать',
+    -17: 'минус семьнадцать',
+    -18: 'минус восемьнадцать',
+    -19: 'минус девятьнадцать',
+    -20: 'минус двадцать',
+    -21: 'минус двадцать один',
+    -22: 'минус двадцать два',
+    -23: 'минус двадцать три',
+    -24: 'минус двадцать четыре',
+    -25: 'минус двадцать пять',
+    -26: 'минус двадцать шесть',
+    -27: 'минус двадцать семь',
+    -28: 'минус двадцать восемь',
+    -29: 'минус двадцать девять',
+    -30: 'минус тридцать',
 }
+
+
 def weather():
     # вставьте свой API-ключ вместо 'YOUR_API_KEY'
     api_key = 'dc4b0ae9e71d7cb1805e6679f58276ab'
@@ -127,11 +187,38 @@ def weather():
     # извлекаем нужную информацию из данных о погоде
     temperature = data['main']['temp']
     description = data['weather'][0]['description']
-    temp = math.trunc(int(temperature)) # 3.98 >> 3
+    temp = math.trunc(int(temperature))  # 3.98 >> 3
     # выводим информацию о погоде на экран
     print(f'Температура в городе {city_name}: {temperature}°C')
     print(f'Описание погоды: {description}')
-    voice.speaker(f'Температура {numbers_for_translate[temp]} градуса.') # 3 >> три
+    voice.speaker(f'Температура {numbers_for_translate[temp]} градуса.')  # 3 >> три
+
+
+def MP4ToMP3(mp4, mp3):
+    FILETOCONVERT = AudioFileClip(mp4)
+    FILETOCONVERT.write_audiofile(mp3)
+    FILETOCONVERT.close()
+    print('YES CONVERTED!')
+    print('Ready')
+    voice.speaker('Готово, можете слушать.')
+
+
+def DownloadMP3():
+    linkAudio = input("Вставьте ссылку: \n")
+    yt = YouTube(linkAudio)
+    file = yt.streams.get_lowest_resolution()
+    oputh = ("E:\PyCharm\Offline-Voice-Assistant-with-Machine-Learning-on-python\music")
+    out_file = file.download(output_path=oputh)
+    convertToMp3 = oputh + f'\{yt.title}.mp3'
+    print(out_file)
+    print(oputh + f'\{yt.title}.mp3')  # делаем путь с mp3
+    MP4ToMP3(out_file, convertToMp3)  # convert to mp3
+    os.remove(out_file)
+    # save the file
+    # base, ext = os.path.splitext(out_file)
+    # print(base)
+    # new_file = base + '.mp3'
+    # os.rename(out_file, new_file)
 
 
 def offpc():
@@ -153,8 +240,6 @@ def trash():
 def offBot():
     '''Отключает бота'''
     sys.exit()
-
-
 
 
 def passive():
